@@ -9,6 +9,7 @@
 namespace Aura\Router;
 
 use Aura\Router\Rule;
+use Aura\Router\Rule\CachedPath;
 use Psr\Log\NullLogger;
 
 /**
@@ -114,6 +115,24 @@ class RouterContainer
      * @var callable
      */
     protected $mapBuilder;
+
+    /**
+     *
+     * The optimized route matcher.
+     *
+     * @var OptimizedMatcher
+     *
+     */
+    protected $optimizedMatcher;
+
+    /**
+     *
+     * An optimized collection of route-matching rules with caching.
+     *
+     * @var Rule\RuleIterator
+     *
+     */
+    protected $optimizedRuleIterator;
 
     /**
      *
@@ -363,5 +382,53 @@ class RouterContainer
     public function newRouteRawHelper()
     {
         return new Helper\RouteRaw($this->getGenerator());
+    }
+
+    /**
+     *
+     * Gets the shared OptimizedMatcher instance.
+     *
+     * The OptimizedMatcher uses prefix-based route indexing and regex pattern
+     * caching for significantly improved performance, especially with large
+     * route maps.
+     *
+     * @return OptimizedMatcher
+     *
+     */
+    public function getOptimizedMatcher()
+    {
+        if (! $this->optimizedMatcher) {
+            $this->optimizedMatcher = new OptimizedMatcher(
+                $this->getMap(),
+                $this->getLogger(),
+                $this->getOptimizedRuleIterator()
+            );
+        }
+        return $this->optimizedMatcher;
+    }
+
+    /**
+     *
+     * Gets the optimized rule iterator instance with CachedPath.
+     *
+     * This rule iterator uses CachedPath instead of Path, which caches
+     * compiled regex patterns to avoid rebuilding them on every match.
+     *
+     * @return Rule\RuleIterator
+     *
+     */
+    public function getOptimizedRuleIterator()
+    {
+        if (! $this->optimizedRuleIterator) {
+            $this->optimizedRuleIterator = new Rule\RuleIterator([
+                new Rule\Secure(),
+                new Rule\Host(),
+                new CachedPath($this->basepath),
+                new Rule\Allows(),
+                new Rule\Accepts(),
+                new Rule\Special(),
+            ]);
+        }
+        return $this->optimizedRuleIterator;
     }
 }
