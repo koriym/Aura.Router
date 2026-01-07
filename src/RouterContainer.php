@@ -118,21 +118,21 @@ class RouterContainer
 
     /**
      *
-     * The optimized route matcher.
+     * The indexed route matcher.
      *
-     * @var OptimizedMatcher
+     * @var IndexedMatcher
      *
      */
-    protected $optimizedMatcher;
+    protected $indexedMatcher;
 
     /**
      *
-     * An optimized collection of route-matching rules with caching.
+     * Rule iterator with pattern caching for indexed matcher.
      *
      * @var Rule\RuleIterator
      *
      */
-    protected $optimizedRuleIterator;
+    protected $cachedRuleIterator;
 
     /**
      *
@@ -386,30 +386,30 @@ class RouterContainer
 
     /**
      *
-     * Gets the shared OptimizedMatcher instance.
+     * Gets the shared IndexedMatcher instance.
      *
-     * The OptimizedMatcher uses prefix-based route indexing and regex pattern
+     * The IndexedMatcher uses prefix-based route indexing and regex pattern
      * caching for significantly improved performance, especially with large
      * route maps.
      *
-     * @return OptimizedMatcher
+     * @return IndexedMatcher
      *
      */
-    public function getOptimizedMatcher()
+    public function getIndexedMatcher()
     {
-        if (! $this->optimizedMatcher) {
-            $this->optimizedMatcher = new OptimizedMatcher(
+        if (! $this->indexedMatcher) {
+            $this->indexedMatcher = new IndexedMatcher(
                 $this->getMap(),
                 $this->getLogger(),
-                $this->getOptimizedRuleIterator()
+                $this->getCachedRuleIterator()
             );
         }
-        return $this->optimizedMatcher;
+        return $this->indexedMatcher;
     }
 
     /**
      *
-     * Gets the optimized rule iterator instance with CachedPath.
+     * Gets the rule iterator instance with CachedPath.
      *
      * This rule iterator uses CachedPath instead of Path, which caches
      * compiled regex patterns to avoid rebuilding them on every match.
@@ -417,10 +417,10 @@ class RouterContainer
      * @return Rule\RuleIterator
      *
      */
-    public function getOptimizedRuleIterator()
+    public function getCachedRuleIterator()
     {
-        if (! $this->optimizedRuleIterator) {
-            $this->optimizedRuleIterator = new Rule\RuleIterator([
+        if (! $this->cachedRuleIterator) {
+            $this->cachedRuleIterator = new Rule\RuleIterator([
                 new Rule\Secure(),
                 new Rule\Host(),
                 new CachedPath($this->basepath),
@@ -429,6 +429,6 @@ class RouterContainer
                 new Rule\Special(),
             ]);
         }
-        return $this->optimizedRuleIterator;
+        return $this->cachedRuleIterator;
     }
 }

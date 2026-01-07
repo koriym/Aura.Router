@@ -3,7 +3,7 @@ namespace Aura\Router;
 
 use Zend\Diactoros\ServerRequestFactory;
 
-class OptimizedMatcherTest extends \PHPUnit_Framework_TestCase
+class IndexedMatcherTest extends \PHPUnit_Framework_TestCase
 {
     protected $map;
     protected $matcher;
@@ -13,7 +13,7 @@ class OptimizedMatcherTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
         $container = new RouterContainer();
         $this->map = $container->getMap();
-        $this->matcher = $container->getOptimizedMatcher();
+        $this->matcher = $container->getIndexedMatcher();
     }
 
     protected function newRequest($path, array $server = [])

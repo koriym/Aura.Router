@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  *
- * An optimized matcher that uses prefix-based route indexing.
+ * A matcher that uses prefix-based route indexing.
  *
  * This matcher indexes routes by their first path segment, allowing it to
  * skip routes that cannot possibly match based on the request path prefix.
@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  * @package Aura.Router
  *
  */
-class OptimizedMatcher extends Matcher
+class IndexedMatcher extends Matcher
 {
     /**
      *
